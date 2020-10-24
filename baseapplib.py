@@ -1,5 +1,5 @@
 
-# version 0.0.5
+# version 0.0.6
 
 # imports
 import random
@@ -183,22 +183,18 @@ class HtmlLetter:
         self.__body = ''
 
 
-class ConfigFileReader:
+class Config:
 
-    def __init__(self, file_name: str, separator: str = '='):
-        self.__file_name = file_name
-        self.__separator = separator
-        self.__settings = {}
-        self.read_file()
+    def __init__(self):
+        self.settings = {}
 
-    def read_file(self):
-        ok = True # инициализация
-        self.__settings = {}
+    def read_file(self, file_name: str = 'config', separator: str = '='):
+        ok = True
 
         try:
-            with open(self.__file_name, 'r') as file:
+            with open(file_name, 'r') as file:
                 # считать все строки файла в список
-                lines = file.readlines() # грязный список
+                lines = file.readlines()  # грязный список
 
                 # удаляем пробелы, табы и переводы строк
                 for index in range(len(lines)):
@@ -224,18 +220,15 @@ class ConfigFileReader:
                 # если встречаем разделитель, делим элемент на 2,
                 # и загружаем key:value в словарь
                 for item in lines:
-                    if self.__separator in item:
-                        line_list =  item.split(self.__separator)
-                        if len(line_list) == 2: # Если длина списка = 2
-                            self.__settings[line_list[0]] = line_list[1]
+                    if separator in item:
+                        line_list = item.split(separator)
+                        if len(line_list) == 2:
+                            self.settings[line_list[0]] = line_list[1]
                         else:
                             ok = False
                     else:
                         ok = False
                 return ok
         except FileNotFoundError:
-            print('ОШИБКА! Файл', self.__file_name, 'не найден!')
+            print('ОШИБКА! Файл', file_name, 'не найден!')
             ok = False
-
-    def get_settings(self):
-        return self.__settings
