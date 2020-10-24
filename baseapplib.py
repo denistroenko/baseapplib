@@ -218,20 +218,23 @@ class Config:
 
                 # проходим по списку,
                 # если встречаем разделитель, делим элемент на 2,
-                # и загружаем key:value в словарь
-                for item in lines:
-                    if separator in item:
-                        line_list = item.split(separator)
-                        if len(line_list) == 2:
-                            self.settings[line_list[0]] = line_list[1]
-                        else:
-                            ok = False
-                    else:
-                        ok = False
-                return ok
+                # и jагружаем key:value в словарь
+                settings = {}  # Временный словарь
+                for line in lines:
+                    if separator in line:
+                        settings_pair = line.split(separator)
+                        # Работать только в том случае, если
+                        # separator один на строку
+                        if len(settings_pair) == 2:
+                            settings[settings_pair[0]] = settings_pair[1]
+
+                self['main'] = settings
+
         except FileNotFoundError:
             print('ОШИБКА! Файл', file_name, 'не найден!')
             ok = False
+
+        return ok
 
     def clear(self):
         self.settings = {}
