@@ -1,5 +1,5 @@
 
-# version 0.0.6
+# version 0.0.5
 
 # imports
 import random
@@ -194,7 +194,7 @@ class ConfigFileReader:
     def read_file(self):
         ok = True # инициализация
         self.__settings = {}
-        
+
         try:
             with open(self.__file_name, 'r') as file:
                 # считать все строки файла в список
@@ -229,11 +229,11 @@ class ConfigFileReader:
                         if len(line_list) == 2: # Если длина списка = 2
                             self.__settings[line_list[0]] = line_list[1]
                         else:
-                            ok = False 
+                            ok = False
                     else:
                         ok = False
                 return ok
-        except FileNotFoundError: 
+        except FileNotFoundError:
             print('ОШИБКА! Файл', self.__file_name, 'не найден!')
             ok = False
 
