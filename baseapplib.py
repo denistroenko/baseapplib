@@ -1,5 +1,5 @@
 
-# version 0.0.6
+# version 0.0.7
 
 # imports
 import random
@@ -232,3 +232,6 @@ class Config:
         except FileNotFoundError:
             print('ОШИБКА! Файл', file_name, 'не найден!')
             ok = False
+
+    def clear(self):
+        self.settings = {}
