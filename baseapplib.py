@@ -246,5 +246,43 @@ class Config:
 
         return ok
 
+    def write_file(self,
+                   file_name: str = 'config_exp',
+                   separator: str = '=',
+                   comment: str = '#',
+                   section_start: str = '[',
+                   section_end: str = ']'):
+
+        ok = True
+
+        try:
+            with open(file_name, 'w') as file:
+                for section in self.settings:
+                    tab = 25 - len(section)
+                    if tab < 2:
+                        tab = 2
+                    file.write(section_start +
+                               section +
+                               section_end +
+                               ' ' * tab + comment + ' Секция параметров ' +
+                               section + '\n\n')
+                    for setting in self.settings[section]:
+                        tab = 24 - (len(setting) +
+                                    len(self.settings[section][setting]))
+                        if tab < 2:
+                            tab = 2
+                        file.write(setting + ' ' + separator + ' ' +
+                                   self.settings[section][setting] +
+                                   ' ' * tab + comment +
+                                   ' Значение параметра ' +
+                                   setting + '\n')
+                    file.write('\n\n')
+
+        except FileNotFoundError:
+            print('ОШИБКА! Файл', file_name, 'не найден!')
+            ok = False
+
+        return ok
+
     def clear(self):
         self.settings = {}
