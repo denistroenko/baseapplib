@@ -1,0 +1,19 @@
+#  Config.settings - это двумерный словарь, т.е. значения ключей
+#  содержат словари. Ниже пример кода, как достать значения
+#  в виде СЕКЦИЯ - ПАРАМЕТР - ЗНАЧЕНИЕ
+
+from baseapplib import Config
+
+config = Config()
+
+config.read_file()
+
+print(config.settings)  # Это выведет весь словарь .settings
+
+# Это выведет все содержимое словаря .settings с содержащимися словарями
+# в формате КЛЮЧ_Секции КЛЮЧ_Настройки ЗНАЧЕНИЕ_настройки
+for key_section in config.settings:
+    for key_setting in config.settings[key_section]:
+        print(key_section,
+              key_setting,
+              config.settings[key_section][key_setting])

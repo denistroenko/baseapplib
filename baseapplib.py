@@ -1,5 +1,5 @@
 
-# version 0.0.7
+# version 0.0.8
 
 # imports
 import random
@@ -188,7 +188,12 @@ class Config:
     def __init__(self):
         self.settings = {}
 
-    def read_file(self, file_name: str = 'config', separator: str = '='):
+    def read_file(self,
+                  file_name: str = 'config',
+                  separator: str = '=',
+                  comment: str = '#',
+                  section_start: str = '[',
+                  section_end: str = ']'):
         ok = True
 
         try:
@@ -202,15 +207,17 @@ class Config:
                     lines[index] = lines[index].replace('\n', '')
                     lines[index] = lines[index].replace('\t', '')
 
-                # удаляем строки, начинающиеся с '#'
+                # удаляем строки, начинающиеся с комментария, если это
+                # не пустые строки
                 for line in lines:
-                    if line[0] == '#':
-                        lines.remove(line)
+                    if len(line) > 0:
+                        if line[0] == comment:
+                            lines.remove(line)
 
-                # удаляем правую часть строки после '#'
+                # удаляем правую часть строки после комментария
                 for index in range(len(lines)):
-                    if '#' in lines[index]:
-                        lines[index] = lines[index].split('#')[0]
+                    if comment in lines[index]:
+                        lines[index] = lines[index].split(comment)[0]
 
                 # удаляем пустые строки из списка
                 while "" in lines:
@@ -218,17 +225,20 @@ class Config:
 
                 # проходим по списку,
                 # если встречаем разделитель, делим элемент на 2,
-                # и jагружаем key:value в словарь
-                settings = {}  # Временный словарь
+                # и загружаем key:value в словарь
+                settings = {}  # Временный словарь для параметров секции
+                section = "main"  # Секция по-умолчанию
                 for line in lines:
+                    if section_start in line and section_end in line:
+                        section = line[1:-1]
+                        settings = {}
                     if separator in line:
                         settings_pair = line.split(separator)
                         # Работать только в том случае, если
                         # separator один на строку
                         if len(settings_pair) == 2:
                             settings[settings_pair[0]] = settings_pair[1]
-
-                self['main'] = settings
+                            self.settings[section] = settings
 
         except FileNotFoundError:
             print('ОШИБКА! Файл', file_name, 'не найден!')
