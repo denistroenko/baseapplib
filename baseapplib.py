@@ -1,5 +1,5 @@
 
-# version 0.0.8
+# version 0.0.11
 
 # imports
 import random
@@ -187,6 +187,15 @@ class Config:
 
     def __init__(self):
         self.settings = {}
+
+    def __str__(self) -> str:
+        out_str = ''
+        for key_section in self.settings:
+            for key_setting in self.settings[key_section]:
+                out_str += '[{}] [{}] = {}\n'.format\
+                    (key_section, key_setting,
+                    self.settings[key_section][key_setting])
+        return out_str
 
     def read_file(self,
                   file_name: str = 'config',
