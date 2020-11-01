@@ -288,3 +288,11 @@ class Config:
 
     def clear(self):
         self.settings = {}
+
+    def get(self, section: str, setting: str) -> str:
+        return str(self.settings[section][setting])
+
+    def set(self, section: str, setting: str, value: str):
+        if section not in self.settings.keys():
+            self.settings[section] = {}
+        self.settings[section][setting] = str(value)
