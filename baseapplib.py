@@ -267,15 +267,17 @@ class Config:
                                ' ' * tab + comment + ' Секция параметров ' +
                                section + '\n\n')
                     for setting in self.settings[section]:
-                        tab = 24 - (len(setting) +
-                                    len(self.settings[section][setting]))
-                        if tab < 2:
-                            tab = 2
-                        file.write(setting + ' ' + separator + ' ' +
-                                   self.settings[section][setting] +
-                                   ' ' * tab + comment +
-                                   ' Значение параметра ' +
-                                   setting + '\n')
+                        if len(self.settings[section][setting]) > 0:
+                            tab = 24 - (len(setting) +
+                                        len(self.settings[section][setting]))
+                            if tab < 2:
+                                tab = 2
+
+                            file.write(setting + ' ' + separator + ' ' +
+                                    self.settings[section][setting] +
+                                    ' ' * tab + comment +
+                                    ' Значение параметра ' +
+                                    setting + '\n')
                     file.write('\n\n')
 
         except FileNotFoundError:
