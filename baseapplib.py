@@ -20,6 +20,18 @@ def get_script_dir(follow_symlinks=True):
     return '{}/'.format(os.path.dirname(path))
 
 
+def human_space(bytes: int) -> str:
+    if bytes >= 1024 ** 3:
+        result = str('{}G'.format(round(bytes/1024**3, 1)))
+    elif bytes >= 1024 ** 2:
+        result = str('{}M'.format(round(bytes/1024**2, 1)))
+    elif bytes >= 1024:
+        result = str('{}K'.format(round(bytes/1024), 1))
+    else:
+        result = str('{}b'.format(bytes))
+    return result
+
+
 class PasswordGenerator:
 
     def __init__(self):
@@ -211,7 +223,7 @@ class Config:
         return out_str
 
     def read_file(self,
-                  full_path: str = get_script_dir() + 'config',
+                  full_path: str = '{}config'.format(get_script_dir()),
                   separator: str = '=',
                   comment: str = '#',
                   section_start: str = '[',
@@ -310,6 +322,9 @@ class Config:
 
     def get(self, section: str, setting: str) -> str:
         return str(self.settings[section][setting])
+
+    def get_section_dict(self, section) -> dict:
+        return self.settings[section]
 
     def set(self, section: str, setting: str, value: str):
         if section not in self.settings.keys():
