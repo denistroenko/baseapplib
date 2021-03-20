@@ -1,15 +1,15 @@
-
-# version 0.0.16
-
-# imports
 import random
 import smtplib
-from email.mime.text import MIMEText
 import os
 import inspect
 import sys
+from email.mime.text import MIMEText
 
 
+__version__ = '0.0.16'
+
+
+# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 def get_script_dir(follow_symlinks=True):
     if getattr(sys, 'frozen', False): # py2exe, PyInstaller, cx_Freeze
         path = os.path.abspath(sys.executable)
@@ -20,6 +20,7 @@ def get_script_dir(follow_symlinks=True):
     return '{}/'.format(os.path.dirname(path))
 
 
+# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 def human_space(bytes: int) -> str:
     if bytes >= 1024 ** 3:
         result = str('{}G'.format(round(bytes/1024**3, 1)))
@@ -32,6 +33,7 @@ def human_space(bytes: int) -> str:
     return result
 
 
+# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class PasswordGenerator:
 
     def __init__(self):
@@ -116,6 +118,7 @@ class PasswordGenerator:
         return self.curent_password
 
 
+# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class EmailSender:
 
     def __init__(self):
@@ -157,6 +160,7 @@ class EmailSender:
         server.quit()
 
 
+# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class HtmlLetter:
 
     def __init__(self, background_color: str = '#fff',
@@ -215,6 +219,7 @@ class HtmlLetter:
         self.__body = ''
 
 
+# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class Config:
 
     def __init__(self):
@@ -339,6 +344,7 @@ class Config:
         self.settings[section][setting] = str(value)
 
 
+# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class Console:
 
     def __init__(self):
@@ -357,27 +363,27 @@ class Console:
                 result.append(arg)
         return result
 
-    def print_title(self, title: list, border_simbol: str = "#",
+    def print_title(self, title: list, border_symbol: str = "#",
                     width: int = 40, space_before: bool = True,
                     space_after: bool = True):
         if type(title) != list:
             title = [str(title), ]
-        if len(border_simbol) * (width // len(border_simbol)) != width:
-            width = len(border_simbol) * (width // len(border_simbol))
+        if len(border_symbol) * (width // len(border_symbol)) != width:
+            width = len(border_symbol) * (width // len(border_symbol))
 
         if space_before:
             print()
 
-        print(border_simbol * (width // len(border_simbol)))
+        print(border_symbol * (width // len(border_symbol)))
         for string in title:
-            half1 = width // 2 - len(string) // 2 - len(border_simbol)
-            half2 = width - (half1 + len(string)) - len(border_simbol) * 2
-            print(border_simbol +
+            half1 = width // 2 - len(string) // 2 - len(border_symbol)
+            half2 = width - (half1 + len(string)) - len(border_symbol) * 2
+            print(border_symbol +
                 ' ' * half1 +
                 string +
                 ' ' * half2 +
-                border_simbol)
-        print(border_simbol * (width // len(border_simbol)))
+                border_symbol)
+        print(border_symbol * (width // len(border_symbol)))
 
         if space_after:
             print()
@@ -394,53 +400,50 @@ class Console:
         end: str = '\n',
         flush: bool = False,
     ):
-        colors = {
-            'black': '\033[30m',
-            'red': '\033[31m',
-            'green': '\033[32m',
-            'yellow': '\033[33m',
-            'blue': '\033[34m',
-            'purple': '\033[35m',
-            'turquoise': '\033[36m',
-            'white': '\033[37m',
-            '0': '\033[30m',
-            '1': '\033[31m',
-            '2': '\033[32m',
-            '3': '\033[33m',
-            '4': '\033[34m',
-            '5': '\033[35m',
-            '6': '\033[36m',
-            '7': '\033[37m',
-        }
-        bg_colors = {
-            'black': '\033[40m',
-            'red': '\033[41m',
-            'green': '\033[42m',
-            'yellow': '\033[43m',
-            'blue': '\033[44m',
-            'purple': '\033[45m',
-            'turquoise': '\033[46m',
-            'white': '\033[47m',
-            '0': '\033[40m',
-            '1': '\033[41m',
-            '2': '\033[42m',
-            '3': '\033[43m',
-            '4': '\033[44m',
-            '5': '\033[45m',
-            '6': '\033[46m',
-            '7': '\033[47m',
-        }
+        colors = {'black': '\033[30m',
+                  'red': '\033[31m',
+                  'green': '\033[32m',
+                  'yellow': '\033[33m',
+                  'blue': '\033[34m',
+                  'purple': '\033[35m',
+                  'turquoise': '\033[36m',
+                  'white': '\033[37m',
+                  '0': '\033[30m',
+                  '1': '\033[31m',
+                  '2': '\033[32m',
+                  '3': '\033[33m',
+                  '4': '\033[34m',
+                  '5': '\033[35m',
+                  '6': '\033[36m',
+                  '7': '\033[37m',
+                  }
+        bg_colors = {'black': '\033[40m',
+                     'red': '\033[41m',
+                     'green': '\033[42m',
+                     'yellow': '\033[43m',
+                     'blue': '\033[44m',
+                     'purple': '\033[45m',
+                     'turquoise': '\033[46m',
+                     'white': '\033[47m',
+                     '0': '\033[40m',
+                     '1': '\033[41m',
+                     '2': '\033[42m',
+                     '3': '\033[43m',
+                     '4': '\033[44m',
+                     '5': '\033[45m',
+                     '6': '\033[46m',
+                     '7': '\033[47m',
+                     }
 
-        effects = {
-            '0': '\033[0m',
-            '1': '\033[1m',
-            '2': '\033[2m',
-            '3': '\033[3m',
-            '4': '\033[4m',
-            '5': '\033[5m',
-            '6': '\033[6m',
-            '7': '\033[7m',
-        }
+        effects = {'0': '\033[0m',
+                   '1': '\033[1m',
+                   '2': '\033[2m',
+                   '3': '\033[3m',
+                   '4': '\033[4m',
+                   '5': '\033[5m',
+                   '6': '\033[6m',
+                   '7': '\033[7m',
+                   }
 
         default_colors = '\033[0m\033[37m\033[40m'
 
