@@ -1,12 +1,12 @@
+__version__ = '0.0.17'
+
+
 import random
 import smtplib
 import os
 import inspect
 import sys
 from email.mime.text import MIMEText
-
-
-__version__ = '0.0.16'
 
 
 # need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
@@ -27,7 +27,7 @@ def human_space(bytes: int) -> str:
     elif bytes >= 1024 ** 2:
         result = str('{}M'.format(round(bytes/1024**2, 1)))
     elif bytes >= 1024:
-        result = str('{}K'.format(round(bytes/1024), 1))
+        result = str('{}K'.format(round(bytes/1024, 1)))
     else:
         result = str('{}b'.format(bytes))
     return result
@@ -41,18 +41,6 @@ class PasswordGenerator:
         self.password_len = 12
         self.curent_password = ""
         self.get_new_password()
-
-    def __str__(self):
-        return \
-            "Это класс 'Генератор Паролей'.\n" + \
-            "Функция get_new_password() " + \
-            "генерирует пароль указанной длины, " + \
-            "равной атрибуту password_len.\n" + \
-            "Атрибут use_special_symbols " + \
-            "определяет, использовать ли при генерации специальные " + \
-            "символы.\nГенерация ВСЕГДА возвращает " + \
-            "пароль, состоящий из РАВНОГО количества частей:\n" + \
-            "цифры/буквы/БУКВЫ/опционально-спец.символы"
 
     def get_new_password(self):
         # Даем списки, из которых будет генерироваться пароль
@@ -247,11 +235,10 @@ class Config:
                 # считать все строки файла в список
                 lines = file.readlines()  # грязный список
 
-                # удаляем пробелы, табы и переводы строк
+                # удаляем переводы строк, табы заменяем пробелами
                 for index in range(len(lines)):
-                    lines[index] = lines[index].replace(' ', '')
                     lines[index] = lines[index].replace('\n', '')
-                    lines[index] = lines[index].replace('\t', '')
+                    lines[index] = lines[index].replace('\t', ' ')
 
                 # удаляем строки, начинающиеся с комментария, если это
                 # не пустые строки
@@ -260,7 +247,7 @@ class Config:
                         if line[0] == comment:
                             lines.remove(line)
 
-                # удаляем правую час ть строки после комментария
+                # удаляем правую часть строки после комментария
                 for index in range(len(lines)):
                     if comment in lines[index]:
                         lines[index] = lines[index].split(comment)[0]
@@ -275,14 +262,20 @@ class Config:
                 section = "main"  # Секция по-умолчанию
                 for line in lines:
                     if section_start in line and section_end in line:
-                        section = line[1:-1]
+                        section = line[1:-1].strip()
                     if separator in line:
                         settings_pair = line.split(separator)
                         # Работать только в том случае, если
                         # separator один на строку
                         if len(settings_pair) == 2:
-                            self.set(section,
-                                     settings_pair[0], settings_pair[1])
+                            # Удаляем пробелы в начале и конце
+                            settings_pair[0] = settings_pair[0].strip()
+                            settings_pair[1] = settings_pair[1].strip()
+
+                            self.set(section=section,
+                                     setting=settings_pair[0],
+                                     value=settings_pair[1],
+                                     )
         except FileNotFoundError:
             print('ОШИБКА! Файл', full_path, 'не найден!')
             ok = False
@@ -396,6 +389,7 @@ class Console:
               color: str = 'white',
               bg_color: str = 'black',
               effect: str = '0',
+              sep=' ',
               end: str = '\n',
               flush: bool = False,
               ):
@@ -455,11 +449,11 @@ class Console:
         if not effect in effects:
             effect = '0'
 
-        print(
-            f'{effects[effect]}{colors[color]}{bg_colors[bg_color]}{msg}{default_colors}',
-            flush = flush,
-            end = end,
-        )
+        print(f'{effects[effect]}{colors[color]}{bg_colors[bg_color]}{msg}{default_colors}',
+              flush=flush,
+              sep=sep,
+              end=end,
+              )
 
     def print_progress_bar(self,
                            percents: int,
