@@ -6,11 +6,15 @@ import smtplib
 import os
 import inspect
 import sys
+import logging
+import logging.handlers
 from email.mime.text import MIMEText
 
 
-# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 def get_script_dir(follow_symlinks=True):
+    """
+    Возвращает путь к скрипту __main__ (папку)
+    """
     if getattr(sys, 'frozen', False): # py2exe, PyInstaller, cx_Freeze
         path = os.path.abspath(sys.executable)
     else:
@@ -18,6 +22,56 @@ def get_script_dir(follow_symlinks=True):
     if follow_symlinks:
         path = os.path.realpath(path)
     return '{}/'.format(os.path.dirname(path))
+
+
+def configure_logger(
+        logger: object,
+        screen_logging: bool=False,
+        debug_file_name: str='%sdebug.log' % get_script_dir(),
+        error_file_name: str='%serror.log' % get_script_dir(),
+        date_format: str='%Y-%m-%d %H:%M:%S',
+        message_format: str='%(asctime)s [%(name)s] %(levelname)s %(message)s',
+        ):
+
+    """
+    Стандартная конфигурация логгера. Передаваемый объект логгера должен быть
+    создан на глобальном уровне модуля, в который импортируется эта функция
+    или весь этот модуль.
+
+    logger - Объект логгера
+    screen_logging (False) - включить хендлер экрана
+    debug_file_name, error_file_name - имена файлов для
+    файловых хендлеров (если пустая строка - файловые хендлеры не создаются).
+    """
+
+    # set level
+    logger.setLevel(logging.DEBUG)
+
+    # create and configure formatters
+    # standard formats
+    file_formatter = logging.Formatter(fmt=message_format,
+                                       datefmt=date_format,
+                                       )
+    if screen_logging:
+        screen_formatter = logging.Formatter(fmt='%(message)s')
+        screen_handler = logging.StreamHandler()
+        screen_handler.setLevel(logging.INFO)
+        screen_handler.setFormatter(screen_formatter)
+        logger.addHandler(screen_handler)
+
+    if debug_file_name != '':
+        file_debug_handler = logging.handlers.RotatingFileHandler(
+                filename=debug_file_name, maxBytes=10485760, backupCount=5)
+        file_debug_handler.setLevel(logging.DEBUG)
+        file_debug_handler.setFormatter(file_formatter)
+        logger.addHandler(file_debug_handler)
+
+    if error_file_name != '':
+        file_error_handler = logging.handlers.RotatingFileHandler(
+                filename=error_file_name, maxBytes=10485760, backupCount=5)
+        file_error_handler.setLevel(logging.ERROR)
+        file_error_handler.setFormatter(file_formatter)
+        logger.addHandler(file_error_handler)
 
 
 # need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
@@ -130,9 +184,9 @@ class EmailSender:
                    use_html_format: bool = False):
 
         if use_html_format:
-            msg = MIMEText(message, "html", "utf8")
+            msg = MIMEText(message, "html", "utf-8")
         else:
-            msg = MIMEText(message, "plain", "utf8")
+            msg = MIMEText(message, "plain", "utf-8")
 
         msg['Subject'] = subject
         msg['From'] = self.__from
@@ -206,145 +260,14 @@ class HtmlLetter:
 
         self.__body = ''
 
-
-# need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
-class Config:
-
-    def __init__(self):
-        self.settings = {}
-
-    def __str__(self) -> str:
-        out_str = ''
-        for key_section in self.settings:
-            for key_setting in self.settings[key_section]:
-                out_str += '[{}] {} = {}\n'.format\
-                    (key_section, key_setting,
-                    self.settings[key_section][key_setting])
-        return out_str
-
-    def read_file(self,
-                  full_path: str = '{}config'.format(get_script_dir()),
-                  separator: str = '=',
-                  comment: str = '#',
-                  section_start: str = '[',
-                  section_end: str = ']'):
-        ok = True
-
-        try:
-            with open(full_path, 'r') as file:
-                # считать все строки файла в список
-                lines = file.readlines()  # грязный список
-
-                # удаляем переводы строк, табы заменяем пробелами
-                for index in range(len(lines)):
-                    lines[index] = lines[index].replace('\n', '')
-                    lines[index] = lines[index].replace('\t', ' ')
-
-                # удаляем строки, начинающиеся с комментария, если это
-                # не пустые строки
-                for line in lines:
-                    if len(line) > 0:
-                        if line[0] == comment:
-                            lines.remove(line)
-
-                # удаляем правую часть строки после комментария
-                for index in range(len(lines)):
-                    if comment in lines[index]:
-                        lines[index] = lines[index].split(comment)[0]
-
-                # удаляем пустые строки из списка
-                while "" in lines:
-                    lines.remove("")
-
-                # проходим по списку,
-                # если встречаем разделитель, делим элемент на 2,
-                # и загружаем key:value в словарь
-                section = "main"  # Секция по-умолчанию
-                for line in lines:
-                    if section_start in line and section_end in line:
-                        section = line[1:-1].strip()
-                    if separator in line:
-                        settings_pair = line.split(separator)
-                        # Работать только в том случае, если
-                        # separator один на строку
-                        if len(settings_pair) == 2:
-                            # Удаляем пробелы в начале и конце
-                            settings_pair[0] = settings_pair[0].strip()
-                            settings_pair[1] = settings_pair[1].strip()
-
-                            self.set(section=section,
-                                     setting=settings_pair[0],
-                                     value=settings_pair[1],
-                                     )
-        except FileNotFoundError:
-            print('ОШИБКА! Файл', full_path, 'не найден!')
-            ok = False
-
-        return ok
-
-    def write_file(self,
-                   full_path: str = get_script_dir() + 'config_exp',
-                   separator: str = '=',
-                   comment: str = '#',
-                   section_start: str = '[',
-                   section_end: str = ']'):
-
-        ok = True
-
-        try:
-            with open(full_path, 'w') as file:
-                for section in self.settings:
-                    tab = 25 - len(section)
-                    if tab < 2:
-                        tab = 2
-                    file.write(section_start +
-                               section +
-                               section_end +
-                               ' ' * tab + comment + ' Секция параметров ' +
-                               section + '\n\n')
-                    for setting in self.settings[section]:
-                        if len(self.settings[section][setting]) > 0:
-                            tab = 24 - (len(setting) +
-                                        len(self.settings[section][setting]))
-                            if tab < 2:
-                                tab = 2
-
-                            file.write(setting + ' ' + separator + ' ' +
-                                    self.settings[section][setting] +
-                                    ' ' * tab + comment +
-                                    ' Значение параметра ' +
-                                    setting + '\n')
-                    file.write('\n\n')
-
-        except FileNotFoundError:
-            print('ОШИБКА! Файл', full_path, 'не найден!')
-            ok = False
-
-        return ok
-
-    def clear(self):
-        self.settings = {}
-
-    def get(self, section: str, setting: str) -> str:
-        return str(self.settings[section][setting])
-
-    def get_section_dict(self, section) -> dict:
-        return self.settings[section]
-
-    def set(self, section: str, setting: str, value: str):
-        if section not in self.settings.keys():
-            self.settings[section] = {}
-        self.settings[section][setting] = str(value)
-
-
 # need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class Console:
-
     def __init__(self):
-        self.__args_list = []
         self.__args_list = sys.argv[1:]
 
-    def get_args(self) -> list:
+    def get_args(self, original_sys_argv: bool=False) -> list:
+        if original_sys_argv:
+            return self.__args_list
         result = []
         for arg in self.__args_list:
             if arg[0:2] == '--':
