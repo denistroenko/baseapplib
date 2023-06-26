@@ -25,8 +25,6 @@ class Section():
             return None
 
 
-
-
 # need edit for pep8!!!!!!!!!!!!!!!!!!!!!!!!
 class Config:
     """
@@ -69,7 +67,10 @@ class Config:
                   separator: str = '=',
                   comment: str = '#',
                   section_start: str = '[',
-                  section_end: str = ']') -> bool:
+                  section_end: str = ']',
+                  except_if_error: bool = False,
+                  out: object = print,
+                  ) -> bool:
         ok = True
 
         try:
@@ -82,17 +83,14 @@ class Config:
                     lines[index] = lines[index].replace('\n', '')
                     lines[index] = lines[index].replace('\t', ' ')
 
-                # удаляем строки, начинающиеся с комментария, если это
-                # не пустые строки
-                for line in lines:
-                    if len(line) > 0:
-                        if line[0] == comment:
-                            lines.remove(line)
-
-                # удаляем правую часть строки после комментария
+                # удалить комментарии по правую часть строки
+                # удалить строки, начинающиеся с комментария
                 for index in range(len(lines)):
                     if comment in lines[index]:
-                        lines[index] = lines[index].split(comment)[0]
+                        lines[index] = lines[index].split(comment)[0].strip()
+
+                for index in range(len(lines)):
+                    lines[index] = lines[index].strip()
 
                 # удаляем пустые строки из списка
                 while "" in lines:
@@ -117,11 +115,23 @@ class Config:
                                  value=settings_pair[1],
                                  )
         except FileNotFoundError:
-            print('ОШИБКА! Файл', config_file, 'не найден!')
             ok = False
+
+            file_not_found_msg = f'Файл {config_file} не найден!'
+            file_is_dir_msg = f'{config_file} - это каталог!'
+
+            if except_if_error:
+                raise FileNotFoundError(file_not_found_msg)
+            else:
+                out(file_not_found_msg)
+
         except IsADirectoryError:
-            print('ОШИБКА!', config_file, '- это каталог!')
             ok = False
+
+            if except_if_error:
+                raise IsADirectoryError(file_is_dir_msg)
+            else:
+                out(file_is_dir_msg)
 
         return ok
 
